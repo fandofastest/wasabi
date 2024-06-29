@@ -101,7 +101,16 @@ s3.listObjects(bucketParams, function(err, data) {
         //   console.log(result.entry);
         // });
 
-        res.send(results);
+        var url='https://wasabi.fando.id/d?dl=true&key='+results[0]['title'];
+
+        if (req.query.dl) {
+          res.redirect(url);
+      
+        }
+        else {
+          res.send({url});
+        }
+      
     }
 });
 
