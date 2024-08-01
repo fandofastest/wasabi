@@ -5,8 +5,7 @@ require('dotenv').config()
 
 
 // import { FullStaticSearch } from 'full-static-search'
-const FullStaticSearch = require('full-static-search').FullStaticSearch;
-const MiniSearch = require('minisearch')
+const Fuse = require('fuse.js')
 
 
 const s3 = new AWS.S3({
@@ -77,23 +76,43 @@ s3.listObjects(bucketParams, function(err, data) {
         var mykey=[]
         var index=0;
         data.Contents.forEach(element => {
+          var key = element.Key.replace(/[^\w\s]|_/g, ".");
+          var key = key.toLowerCase().split('.');
           mykey.push({'id':index++,
-            'title' :element.Key})
+            'title' :element.Key,
+            'key' : key
+          },
+    
+          )
         });
 
-        let miniSearch = new MiniSearch({
-          fields: ['title'], // fields to index for full-text search
-          storeFields: ['title'] 
+        const fuse = new Fuse(mykey, {
+          keys: ['title', 'key']
         })
-
-        console.log(mykey);
-
-        miniSearch.addAll(mykey)
-
-        let results = miniSearch.search(req.query.q)
-
-
+        
+       var results= fuse.search(req.query.q)
         console.log(results);
+
+
+        // let miniSearch = new MiniSearch({
+        //   fields: ['title','key'], // fields to index for full-text search
+        //   storeFields: ['title','key'] ,
+        //   // tokenize: (string) => string.split('-'), // indexing tokenizer
+        //   // searchOptions: {
+        //   //   tokenize: (string) => string.split(/[\s-]+/) // search query tokenizer
+        //   // }
+        // })
+
+        // console.log(mykey);
+
+        // miniSearch.addAll(mykey)
+
+        // let results = miniSearch.search(req.query.q, { fields: ['key'] });
+        // // let results =miniSearch.autoSuggest(req.query.q);
+
+
+
+        // console.log(results);
 
         // console.log(data.Contents)
         
@@ -101,7 +120,7 @@ s3.listObjects(bucketParams, function(err, data) {
         //   console.log(result.entry);
         // });
 
-        var url='https://wasabi.fando.id/d?dl=true&key='+results[0]['title'];
+        var url='https://wasabi.fando.id/d?dl=true&key='+results[0]['item']['title'];
 
         if (req.query.dl) {
           res.redirect(url);
