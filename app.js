@@ -42,7 +42,7 @@ app.get('/d/', async (req, res) => {
 app.get('/all/', async (req, res) => {
   var bucketParams = {
     Bucket : 'movie1111',
-    MaxKeys:5000,
+    MaxKeys:10000,
 };
 
 // Call S3 to obtain a list of the objects in the bucket
@@ -61,7 +61,7 @@ s3.listObjects(bucketParams, function(err, data) {
 app.get('/search/', async (req, res) => {
   var bucketParams = {
     Bucket : 'movie1111',
-    MaxKeys:6000,
+    MaxKeys:10000,
 };
 
 // Call S3 to obtain a list of the objects in the bucket
